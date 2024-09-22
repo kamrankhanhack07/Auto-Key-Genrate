@@ -1,3 +1,15 @@
+[
+    {
+        "name": "John Doe",
+        "key": "AKexampleKey12345",
+        "duration": "3 Months"
+    },
+    {
+        "name": "Jane Smith",
+        "key": "AKexampleKey67890",
+        "duration": "6 Months"
+    }
+]
 // Endpoint to validate a generated key
 app.post('/validateKey', (req, res) => {
     const { key } = req.body;
@@ -36,3 +48,4 @@ app.post('/validateKey', (req, res) => {
         }
     });
 });
+
