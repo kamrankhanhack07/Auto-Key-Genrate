@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>My Blogspot Website</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        header {
+            background-color: #333;
+            color: #fff;
+            padding: 10px 0;
+            text-align: center;
+        }
+        nav {
+            display: flex;
+            justify-content: center;
+            background-color: #444;
+            padding: 10px 0;
+        }
+        nav a {
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+        }
+        nav a:hover {
+            background-color: #555;
+        }
+        .container {
+            padding: 20px;
+            background-color: white;
+        }
+        footer {
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            padding: 10px 0;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+        }
+        .generate-button {
+            padding: 10px 20px;
+            background-color: #333;
+            color: white;
+            border: none;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        .generate-button:hover {
+            background-color: #555;
+        }
+        .dropdown, .name-input {
+            padding: 10px;
+            margin-top: 20px;
+        }
+        #savedKeys {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+        }
+        .key-box {
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            background-color: #e9e9e9;
+            display: flex;
+            flex-direction: column;
+        }
+        .key-label {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .action-buttons {
+            margin-top: 10px;
+        }
+        .action-buttons button {
+            margin-right: 5px;
+            padding: 5px 10px;
+            cursor: pointer;
+            border: none;
+            background-color: #333;
+            color: white;
+        }
+        .action-buttons button:hover {
+            background-color: #555;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Welcome to Kamran Khan</h1>
+    </header>
+    
+    <nav>
+        <a href="#">Home</a>
+        <a href="#">About</a>
+        <a href="#">Contact</a>
+    </nav>
+    
+    <div class="container">
+        <h2>My First Post</h2>
+        <p>This is a sample post to show how HTML works.</p>
+        
+        <label for="startName">Enter Person's Name:</label>
+        <input type="text" id="startName" class="name-input" placeholder="Enter name..." />
+        
+        <label for="timeDuration">Select Time Duration:</label>
+        <select id="timeDuration" class="dropdown">
+            <option value="3 days">3 Days</option>
+            <option value="1 month">1 Month</option>
+            <option value="2 months">2 Months</option>
+            <option value="3 months">3 Months</option>
+            <option value="4 months">4 Months</option>
+            <option value="5 months">5 Months</option>
+            <option value="6 months">6 Months</option>
+            <option value="7 months">7 Months</option>
+            <option value="8 months">8 Months</option>
+            <option value="9 months">9 Months</option>
+            <option value="10 months">10 Months</option>
+            <option value="11 months">11 Months</option>
+            <option value="12 months">12 Months</option>
+        </select>
+        
+        <button class="generate-button" onclick="generateKey()">Generate Key</button>
+        
+        <div id="savedKeys" style="display:none;">
+            <h3>Saved Keys:</h3>
+            <div id="keysList"></div>
+        </div>
+    </div>
+    
+    <footer>
+        &copy; 2024 My Blog | All Rights Reserved
+    </footer>
+
+    <script>
+        // Array to store generated keys
+        const savedKeys = [];
+
+        function generateKey() {
+            // Get the person's name entered by the user
+            const personName = document.getElementById("startName").value.trim();
+            if (personName === "") {
+                alert("Please enter the person's name.");
+                return;
+            }
+
+            // Define the prefix for the key generation
+            const prefix = "AK";
+            const keyLength = 20;
+            const remainingLength = keyLength - prefix.length;
+
+            // Generate a random string of the required remaining length
+            let randomPart = "";
+            const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+            for (let i = 0; i < remainingLength; i++) {
+                randomPart += characters.charAt(Math.floor(Math.random() * characters.length));
+            }
+
+            const generatedKey = prefix + randomPart;
+
+            // Get the selected time duration
+            const timeDuration = document.getElementById("timeDuration").value;
+            const fullKeyInfo = `Key: ${generatedKey} (Valid for: ${timeDuration})`;
+
+            // Create a key object and save it
+            const keyObject = {
+                name: personName,
+                key: generatedKey,
+                duration: timeDuration,
+            };
+            savedKeys.push(keyObject);
+
+            // Display the key with the person's name
+            const savedKeysDiv = document.getElementById("savedKeys");
+            savedKeysDiv.style.display = "block";
+            
+            const keysList = document.getElementById("keysList");
+            const keyBox = document.createElement("div");
+            keyBox.classList.add("key-box");
+
+            // Create a label for the person's name
+            const nameLabel = document.createElement("div");
+            nameLabel.classList.add("key-label");
+            nameLabel.textContent = `Name: ${personName}`;
+            
+            // Create a div for the key information
+            const keyInfo = document.createElement("div");
+            keyInfo.textContent = `Generated Key: ${generatedKey} (Valid for: ${timeDuration})`;
+
+            // Create action buttons
+            const actionButtons = document.createElement("div");
+            actionButtons.classList.add("action-buttons");
+
+            const deleteButton = document.createElement("button");
+            deleteButton.textContent = "Delete Key";
+            deleteButton.onclick = function () {
+                alert(`${personName} has been logged out and their key deleted.`);
+                keysList.removeChild(keyBox);
+            };
+
+            const logoutButton = document.createElement("button");
+            logoutButton.textContent = "Logout";
+            logoutButton.onclick = function () {
+                alert(`${personName} has been logged out.`);
+            };
+
+            const resetButton = document.createElement("button");
+            resetButton.textContent = "Reset Timing";
+            resetButton.onclick = function () {
+                alert(`${personName}'s key timing has been reset.`);
+                keyInfo.textContent = `Generated Key: ${generatedKey} (Valid for: ${timeDuration}) [Timing Reset]`;
+            };
+
+            // Append buttons to the action button div
+            actionButtons.appendChild(deleteButton);
+            actionButtons.appendChild(logoutButton);
+            actionButtons.appendChild(resetButton);
+
+            // Append the name label, key information, and action buttons to the key box
+            keyBox.appendChild(nameLabel);
+            keyBox.appendChild(keyInfo);
+            keyBox.appendChild(actionButtons);
+
+            // Add the key box to the list of saved keys
+            keysList.appendChild(keyBox);
+        }
+    </script>
+</body>
+</html>
