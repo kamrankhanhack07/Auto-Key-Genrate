@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>My Blogspot Website</title>
+    <title>Secure Login System</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -35,6 +35,10 @@
         .container {
             padding: 20px;
             background-color: white;
+            max-width: 600px;
+            margin: 0 auto;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
         footer {
             background-color: #333;
@@ -56,9 +60,10 @@
         .generate-button:hover {
             background-color: #555;
         }
-        .dropdown, .name-input {
+        .dropdown, .name-input, .password-input {
             padding: 10px;
             margin-top: 20px;
+            width: 100%;
         }
         #savedKeys {
             margin-top: 20px;
@@ -94,9 +99,9 @@
         }
     </style>
 </head>
-<body>
+<body onload="initializeApp()">
     <header>
-        <h1>Welcome to Kamran Khan</h1>
+        <h1>Secure Key Generator</h1>
     </header>
     
     <nav>
@@ -105,9 +110,15 @@
         <a href="#">Contact</a>
     </nav>
     
-    <div class="container">
-        <h2>My First Post</h2>
-        <p>This is a sample post to show how HTML works.</p>
+    <div class="container" id="loginContainer">
+        <h2>Login</h2>
+        <label for="passwordInput">Enter Password:</label>
+        <input type="password" id="passwordInput" class="password-input" placeholder="Enter password..." />
+        <button class="generate-button" onclick="login()">Login</button>
+    </div>
+
+    <div class="container" id="mainContainer" style="display:none;">
+        <h2>Key Generation Panel</h2>
         
         <label for="startName">Enter Person's Name:</label>
         <input type="text" id="startName" class="name-input" placeholder="Enter name..." />
@@ -138,27 +149,125 @@
     </div>
     
     <footer>
-        &copy; 2024 My Blog | All Rights Reserved
+        &copy; 2024 Secure System | All Rights Reserved
     </footer>
 
     <script>
-        // Array to store generated keys
-        const savedKeys = [];
+        const correctPassword = "Apple";
+        let savedKeys = [];
+
+        function login() {
+            const enteredPassword = document.getElementById("passwordInput").value;
+            if (enteredPassword === correctPassword) {
+                alert("Password correct! You are now logged in.");
+                localStorage.setItem('savedPassword', enteredPassword);
+                showMainContainer();
+            } else {
+                alert("Incorrect password. Please try again.");
+            }
+        }
+
+        function showMainContainer() {
+            document.getElementById("loginContainer").style.display = "none";
+            document.getElementById("mainContainer").style.display = "block";
+        }
+
+        function checkSavedPassword() {
+            const savedPassword = localStorage.getItem('savedPassword');
+            if (savedPassword === correctPassword) {
+                showMainContainer();
+                loadSavedKeys();
+            }
+        }
+
+        function initializeApp() {
+            checkSavedPassword();
+            loadSavedKeys();
+        }
+
+        function saveKeysToLocalStorage() {
+            localStorage.setItem('savedKeys', JSON.stringify(savedKeys));
+        }
+
+        function loadSavedKeys() {
+            const keysData = localStorage.getItem('savedKeys');
+            if (keysData) {
+                savedKeys = JSON.parse(keysData);
+                displaySavedKeys();
+            }
+        }
+
+        function displaySavedKeys() {
+            const savedKeysDiv = document.getElementById("savedKeys");
+            const keysList = document.getElementById("keysList");
+
+            keysList.innerHTML = '';  // Clear any existing keys
+
+            if (savedKeys.length > 0) {
+                savedKeysDiv.style.display = "block";
+
+                savedKeys.forEach(keyObj => {
+                    const keyBox = document.createElement("div");
+                    keyBox.classList.add("key-box");
+
+                    const nameLabel = document.createElement("div");
+                    nameLabel.classList.add("key-label");
+                    nameLabel.textContent = `Name: ${keyObj.name}`;
+                    
+                    const keyInfo = document.createElement("div");
+                    keyInfo.textContent = `Generated Key: ${keyObj.key} (Valid for: ${keyObj.duration})`;
+
+                    const actionButtons = document.createElement("div");
+                    actionButtons.classList.add("action-buttons");
+
+                    const deleteButton = document.createElement("button");
+                    deleteButton.textContent = "Delete Key";
+                    deleteButton.onclick = function () {
+                        alert(`${keyObj.name} has been logged out and their key deleted.`);
+                        keysList.removeChild(keyBox);
+                        savedKeys = savedKeys.filter(k => k.key !== keyObj.key);
+                        saveKeysToLocalStorage();
+                    };
+
+                    const logoutButton = document.createElement("button");
+                    logoutButton.textContent = "Logout";
+                    logoutButton.onclick = function () {
+                        alert(`${keyObj.name} has been logged out.`);
+                    };
+
+                    const resetButton = document.createElement("button");
+                    resetButton.textContent = "Reset Timing";
+                    resetButton.onclick = function () {
+                        alert(`${keyObj.name}'s key timing has been reset.`);
+                        keyInfo.textContent = `Generated Key: ${keyObj.key} (Valid for: ${keyObj.duration}) [Timing Reset]`;
+                    };
+
+                    actionButtons.appendChild(deleteButton);
+                    actionButtons.appendChild(logoutButton);
+                    actionButtons.appendChild(resetButton);
+
+                    keyBox.appendChild(nameLabel);
+                    keyBox.appendChild(keyInfo);
+                    keyBox.appendChild(actionButtons);
+
+                    keysList.appendChild(keyBox);
+                });
+            } else {
+                savedKeysDiv.style.display = "none";
+            }
+        }
 
         function generateKey() {
-            // Get the person's name entered by the user
             const personName = document.getElementById("startName").value.trim();
             if (personName === "") {
                 alert("Please enter the person's name.");
                 return;
             }
 
-            // Define the prefix for the key generation
             const prefix = "AK";
             const keyLength = 20;
             const remainingLength = keyLength - prefix.length;
 
-            // Generate a random string of the required remaining length
             let randomPart = "";
             const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
             for (let i = 0; i < remainingLength; i++) {
@@ -166,12 +275,8 @@
             }
 
             const generatedKey = prefix + randomPart;
-
-            // Get the selected time duration
             const timeDuration = document.getElementById("timeDuration").value;
-            const fullKeyInfo = `Key: ${generatedKey} (Valid for: ${timeDuration})`;
 
-            // Create a key object and save it
             const keyObject = {
                 name: personName,
                 key: generatedKey,
@@ -179,59 +284,8 @@
             };
             savedKeys.push(keyObject);
 
-            // Display the key with the person's name
-            const savedKeysDiv = document.getElementById("savedKeys");
-            savedKeysDiv.style.display = "block";
-            
-            const keysList = document.getElementById("keysList");
-            const keyBox = document.createElement("div");
-            keyBox.classList.add("key-box");
-
-            // Create a label for the person's name
-            const nameLabel = document.createElement("div");
-            nameLabel.classList.add("key-label");
-            nameLabel.textContent = `Name: ${personName}`;
-            
-            // Create a div for the key information
-            const keyInfo = document.createElement("div");
-            keyInfo.textContent = `Generated Key: ${generatedKey} (Valid for: ${timeDuration})`;
-
-            // Create action buttons
-            const actionButtons = document.createElement("div");
-            actionButtons.classList.add("action-buttons");
-
-            const deleteButton = document.createElement("button");
-            deleteButton.textContent = "Delete Key";
-            deleteButton.onclick = function () {
-                alert(`${personName} has been logged out and their key deleted.`);
-                keysList.removeChild(keyBox);
-            };
-
-            const logoutButton = document.createElement("button");
-            logoutButton.textContent = "Logout";
-            logoutButton.onclick = function () {
-                alert(`${personName} has been logged out.`);
-            };
-
-            const resetButton = document.createElement("button");
-            resetButton.textContent = "Reset Timing";
-            resetButton.onclick = function () {
-                alert(`${personName}'s key timing has been reset.`);
-                keyInfo.textContent = `Generated Key: ${generatedKey} (Valid for: ${timeDuration}) [Timing Reset]`;
-            };
-
-            // Append buttons to the action button div
-            actionButtons.appendChild(deleteButton);
-            actionButtons.appendChild(logoutButton);
-            actionButtons.appendChild(resetButton);
-
-            // Append the name label, key information, and action buttons to the key box
-            keyBox.appendChild(nameLabel);
-            keyBox.appendChild(keyInfo);
-            keyBox.appendChild(actionButtons);
-
-            // Add the key box to the list of saved keys
-            keysList.appendChild(keyBox);
+            saveKeysToLocalStorage(); // Save to localStorage
+            displaySavedKeys();
         }
     </script>
 </body>
