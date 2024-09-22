@@ -269,36 +269,53 @@
     }
 }
 
-        function generateKey() {
-            const personName = document.getElementById("startName").value.trim();
-            if (personName === "") {
-                alert("Please enter the person's name.");
-                return;
-            }
+function generateKey() {
+    const personName = document.getElementById("startName").value.trim();
+    if (personName === "") {
+        alert("Please enter the person's name.");
+        return;
+    }
 
-            const prefix = "AK";
-            const keyLength = 20;
-            const remainingLength = keyLength - prefix.length;
+    const prefix = "AK";
+    const keyLength = 20;
+    const remainingLength = keyLength - prefix.length;
 
-            let randomPart = "";
-            const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-            for (let i = 0; i < remainingLength; i++) {
-                randomPart += characters.charAt(Math.floor(Math.random() * characters.length));
-            }
+    let randomPart = "";
+    const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    for (let i = 0; i < remainingLength; i++) {
+        randomPart += characters.charAt(Math.floor(Math.random() * characters.length));
+    }
 
-            const generatedKey = prefix + randomPart;
-            const timeDuration = document.getElementById("timeDuration").value;
+    const generatedKey = prefix + randomPart;
+    const timeDuration = document.getElementById("timeDuration").value;
 
-            const keyObject = {
-                name: personName,
-                key: generatedKey,
-                duration: timeDuration,
-            };
-            savedKeys.push(keyObject);
+    const keyObject = {
+        name: personName,
+        key: generatedKey,
+        duration: timeDuration,
+    };
 
-            saveKeysToLocalStorage(); // Save to localStorage
-            displaySavedKeys();
-        }
+    // Save key to local storage
+    savedKeys.push(keyObject);
+    saveKeysToLocalStorage(); 
+    displaySavedKeys();
+
+    // Send the key to the backend server
+    fetch('http://localhost:3000/saveKey', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(keyObject),
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('Key saved to server:', data);
+    })
+    .catch((error) => {
+        console.error('Error:', error);
+    });
+}
     </script>
 </body>
 </html>
