@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Secure Login System</title>
     <style>
+        /* Your styles remain unchanged */
         body {
             font-family: Arial, sans-serif;
             background-color: #f4f4f4;
@@ -15,7 +16,7 @@
         header {
             background-color: #333;
             color: #fff;
-            padding: 10px 0;
+            padding: 10px 0;    
             text-align: center;
         }
         nav {
@@ -98,6 +99,9 @@
             background-color: #555;
         }
     </style>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js"></script>
 </head>
 <body onload="initializeApp()">
     <header>
@@ -153,6 +157,19 @@
     </footer>
 
     <script>
+        // Initialize Firebase
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_AUTH_DOMAIN",
+            databaseURL: "YOUR_DATABASE_URL",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_STORAGE_BUCKET",
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+        const app = firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
         const correctPassword = "Apple";
         let savedKeys = [];
 
@@ -198,133 +215,83 @@
         }
 
         function displaySavedKeys() {
-    const savedKeysDiv = document.getElementById("savedKeys");
-    const keysList = document.getElementById("keysList");
+            const savedKeysDiv = document.getElementById("savedKeys");
+            const keysList = document.getElementById("keysList");
+            keysList.innerHTML = '';
+            if (savedKeys.length > 0) {
+                savedKeysDiv.style.display = "block";
+                savedKeys.forEach(keyObj => {
+                    const keyBox = document.createElement("div");
+                    keyBox.classList.add("key-box");
+                    const nameLabel = document.createElement("div");
+                    nameLabel.classList.add("key-label");
+                    nameLabel.textContent = `Name: ${keyObj.name}`;
+                    const keyInfo = document.createElement("div");
+                    keyInfo.textContent = `Generated Key: ${keyObj.key} (Valid for: ${keyObj.duration})`;
 
-    keysList.innerHTML = '';  // Clear any existing keys
+                    const actionButtons = document.createElement("div");
+                    actionButtons.classList.add("action-buttons");
 
-    if (savedKeys.length > 0) {
-        savedKeysDiv.style.display = "block";
+                    const deleteButton = document.createElement("button");
+                    deleteButton.textContent = "Delete Key";
+                    deleteButton.onclick = function () {
+                        alert(`${keyObj.name} has been logged out and their key deleted.`);
+                        keysList.removeChild(keyBox);
+                        savedKeys = savedKeys.filter(k => k.key !== keyObj.key);
+                        saveKeysToLocalStorage();
+                    };
 
-        savedKeys.forEach(keyObj => {
-            const keyBox = document.createElement("div");
-            keyBox.classList.add("key-box");
-
-            const nameLabel = document.createElement("div");
-            nameLabel.classList.add("key-label");
-            nameLabel.textContent = `Name: ${keyObj.name}`;
-            
-            const keyInfo = document.createElement("div");
-            keyInfo.textContent = `Generated Key: ${keyObj.key} (Valid for: ${keyObj.duration})`;
-
-            const actionButtons = document.createElement("div");
-            actionButtons.classList.add("action-buttons");
-
-            const deleteButton = document.createElement("button");
-            deleteButton.textContent = "Delete Key";
-            deleteButton.onclick = function () {
-                alert(`${keyObj.name} has been logged out and their key deleted.`);
-                keysList.removeChild(keyBox);
-                savedKeys = savedKeys.filter(k => k.key !== keyObj.key);
-                saveKeysToLocalStorage();
-            };
-
-            const logoutButton = document.createElement("button");
-            logoutButton.textContent = "Logout";
-            logoutButton.onclick = function () {
-                alert(`${keyObj.name} has been logged out.`);
-            };
-
-            const resetButton = document.createElement("button");
-            resetButton.textContent = "Reset Timing";
-            resetButton.onclick = function () {
-                alert(`${keyObj.name}'s key timing has been reset.`);
-                keyInfo.textContent = `Generated Key: ${keyObj.key} (Valid for: ${keyObj.duration}) [Timing Reset]`;
-            };
-
-            // New "Copy Key" button
-            const copyButton = document.createElement("button");
-            copyButton.textContent = "Copy Key";
-            copyButton.onclick = function () {
-                navigator.clipboard.writeText(keyObj.key).then(() => {
-                    alert("Key copied to clipboard!");
-                }).catch(err => {
-                    console.error('Failed to copy key: ', err);
+                    actionButtons.appendChild(deleteButton);
+                    keyBox.appendChild(nameLabel);
+                    keyBox.appendChild(keyInfo);
+                    keyBox.appendChild(actionButtons);
+                    keysList.appendChild(keyBox);
                 });
+            } else {
+                savedKeysDiv.style.display = "none";
+            }
+        }
+
+        function generateKey() {
+            const personName = document.getElementById("startName").value.trim();
+            if (personName === "") {
+                alert("Please enter the person's name.");
+                return;
+            }
+
+            const prefix = "AK";
+            const keyLength = 20;
+            const remainingLength = keyLength - prefix.length;
+
+            let randomPart = "";
+            const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+            for (let i = 0; i < remainingLength; i++) {
+                randomPart += characters.charAt(Math.floor(Math.random() * characters.length));
+            }
+
+            const generatedKey = prefix + randomPart;
+            const timeDuration = document.getElementById("timeDuration").value;
+
+            const keyObject = {
+                name: personName,
+                key: generatedKey,
+                duration: timeDuration,
             };
 
-            actionButtons.appendChild(deleteButton);
-            actionButtons.appendChild(logoutButton);
-            actionButtons.appendChild(resetButton);
-            actionButtons.appendChild(copyButton); // Add the copy button to the action buttons
-
-            keyBox.appendChild(nameLabel);
-            keyBox.appendChild(keyInfo);
-            keyBox.appendChild(actionButtons);
-
-            keysList.appendChild(keyBox);
-        });
-    } else {
-        savedKeysDiv.style.display = "none";
-    }
-}
-
-function generateKey() {
-    const personName = document.getElementById("startName").value.trim();
-    if (personName === "") {
-        alert("Please enter the person's name.");
-        return;
-    }
-
-    const prefix = "AK";
-    const keyLength = 20;
-    const remainingLength = keyLength - prefix.length;
-
-    let randomPart = "";
-    const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-    for (let i = 0; i < remainingLength; i++) {
-        randomPart += characters.charAt(Math.floor(Math.random() * characters.length));
-    }
-
-    const generatedKey = prefix + randomPart;
-    const timeDuration = document.getElementById("timeDuration").value;
-
-    const keyObject = {
-        name: personName,
-        key: generatedKey,
-        duration: timeDuration,
-    };
-
-    // Save key to local storage
-    savedKeys.push(keyObject);
-    saveKeysToLocalStorage(); 
-    displaySavedKeys();
-
-    console.log('Generated key:', keyObject);
-
-    // Send the key to the backend server
-    fetch('https://github.com/kamrankhanhack07/Auto-Key-Genrate/blob/main/keys.json', {
-    method: 'POST',
-    headers: {
-        'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(keyObject),
-})
-.then(response => {
-    if (response.ok) {
-        return response.json();
-    }
-    throw new Error('Failed to save key on the server');
-})
-.then(data => {
-    console.log('Key saved to server:', data);
-    alert('Key successfully saved on the server');
-})
-.catch((error) => {
-    console.error('Error:', error);
-    alert('Failed to save the key on the server.');
-});
-}
+            // Save the key to Firebase first
+            firebase.database().ref('keys/' + generatedKey).set(keyObject)
+                .then(() => {
+                    console.log('Key saved to Firebase:', keyObject);
+                    savedKeys.push(keyObject);
+                    saveKeysToLocalStorage();
+                    displaySavedKeys();
+                    alert('Key successfully saved to Firebase.');
+                })
+                .catch(error => {
+                    console.error('Failed to save key to Firebase:', error);
+                    alert('Error saving key to Firebase');
+                });
+        }
     </script>
 </body>
 </html>
