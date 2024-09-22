@@ -302,19 +302,20 @@ function generateKey() {
 
     // Send the key to the backend server
     fetch('http://localhost:3000/saveKey', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(keyObject),
-    })
-    .then(response => response.json())
-    .then(data => {
-        console.log('Key saved to server:', data);
-    })
-    .catch((error) => {
-        console.error('Error:', error);
-    });
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(keyObject),
+})
+.then(response => response.json())
+.then(data => {
+    console.log('Key saved to server:', data);
+})
+.catch((error) => {
+    console.error('Error:', error);
+});
+
 }
     </script>
 </body>
