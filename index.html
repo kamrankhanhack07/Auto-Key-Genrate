@@ -300,22 +300,30 @@ function generateKey() {
     saveKeysToLocalStorage(); 
     displaySavedKeys();
 
+    console.log('Generated key:', keyObject);
+
     // Send the key to the backend server
     fetch('http://localhost:3000/saveKey', {
-    method: 'POST',
-    headers: {
-        'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(keyObject),
-})
-.then(response => response.json())
-.then(data => {
-    console.log('Key saved to server:', data);
-})
-.catch((error) => {
-    console.error('Error:', error);
-});
-
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(keyObject),
+    })
+    .then(response => {
+        if (response.ok) {
+            return response.json();
+        }
+        throw new Error('Failed to save key on the server');
+    })
+    .then(data => {
+        console.log('Key saved to server:', data);
+        alert('Key successfully saved on the server');
+    })
+    .catch((error) => {
+        console.error('Error:', error);
+        alert('Failed to save the key on the server.');
+    });
 }
     </script>
 </body>
