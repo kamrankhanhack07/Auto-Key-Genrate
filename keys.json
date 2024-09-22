@@ -1,9 +1,11 @@
-
+// Endpoint to validate a generated key
 app.post('/validateKey', (req, res) => {
     const { key } = req.body;
 
+    // Path to the keys.json file
     const keysFilePath = path.join(__dirname, 'public', 'keys.json');
 
+    // Read the current keys.json file
     fs.readFile(keysFilePath, 'utf8', (err, data) => {
         if (err) {
             console.error('Error reading keys.json:', err);
@@ -20,8 +22,10 @@ app.post('/validateKey', (req, res) => {
             }
         }
 
+        // Log all keys to verify correct loading
         console.log('Keys loaded from file:', keysArray);
 
+        // Check if the key exists in the keys.json file
         const validKey = keysArray.find(k => k.key === key);
         if (validKey) {
             console.log('Key is valid:', validKey);
