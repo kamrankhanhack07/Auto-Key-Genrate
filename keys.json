@@ -9,4 +9,10 @@
         "key": "AKexampleKey67890",
         "duration": "6 Months"
     }
+    },
+    {
+        "name": "Jane Smith",
+        "key": "new1",
+        "duration": "6 Months"
+    }
 ]
