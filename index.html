@@ -198,64 +198,76 @@
         }
 
         function displaySavedKeys() {
-            const savedKeysDiv = document.getElementById("savedKeys");
-            const keysList = document.getElementById("keysList");
+    const savedKeysDiv = document.getElementById("savedKeys");
+    const keysList = document.getElementById("keysList");
 
-            keysList.innerHTML = '';  // Clear any existing keys
+    keysList.innerHTML = '';  // Clear any existing keys
 
-            if (savedKeys.length > 0) {
-                savedKeysDiv.style.display = "block";
+    if (savedKeys.length > 0) {
+        savedKeysDiv.style.display = "block";
 
-                savedKeys.forEach(keyObj => {
-                    const keyBox = document.createElement("div");
-                    keyBox.classList.add("key-box");
+        savedKeys.forEach(keyObj => {
+            const keyBox = document.createElement("div");
+            keyBox.classList.add("key-box");
 
-                    const nameLabel = document.createElement("div");
-                    nameLabel.classList.add("key-label");
-                    nameLabel.textContent = `Name: ${keyObj.name}`;
-                    
-                    const keyInfo = document.createElement("div");
-                    keyInfo.textContent = `Generated Key: ${keyObj.key} (Valid for: ${keyObj.duration})`;
+            const nameLabel = document.createElement("div");
+            nameLabel.classList.add("key-label");
+            nameLabel.textContent = `Name: ${keyObj.name}`;
+            
+            const keyInfo = document.createElement("div");
+            keyInfo.textContent = `Generated Key: ${keyObj.key} (Valid for: ${keyObj.duration})`;
 
-                    const actionButtons = document.createElement("div");
-                    actionButtons.classList.add("action-buttons");
+            const actionButtons = document.createElement("div");
+            actionButtons.classList.add("action-buttons");
 
-                    const deleteButton = document.createElement("button");
-                    deleteButton.textContent = "Delete Key";
-                    deleteButton.onclick = function () {
-                        alert(`${keyObj.name} has been logged out and their key deleted.`);
-                        keysList.removeChild(keyBox);
-                        savedKeys = savedKeys.filter(k => k.key !== keyObj.key);
-                        saveKeysToLocalStorage();
-                    };
+            const deleteButton = document.createElement("button");
+            deleteButton.textContent = "Delete Key";
+            deleteButton.onclick = function () {
+                alert(`${keyObj.name} has been logged out and their key deleted.`);
+                keysList.removeChild(keyBox);
+                savedKeys = savedKeys.filter(k => k.key !== keyObj.key);
+                saveKeysToLocalStorage();
+            };
 
-                    const logoutButton = document.createElement("button");
-                    logoutButton.textContent = "Logout";
-                    logoutButton.onclick = function () {
-                        alert(`${keyObj.name} has been logged out.`);
-                    };
+            const logoutButton = document.createElement("button");
+            logoutButton.textContent = "Logout";
+            logoutButton.onclick = function () {
+                alert(`${keyObj.name} has been logged out.`);
+            };
 
-                    const resetButton = document.createElement("button");
-                    resetButton.textContent = "Reset Timing";
-                    resetButton.onclick = function () {
-                        alert(`${keyObj.name}'s key timing has been reset.`);
-                        keyInfo.textContent = `Generated Key: ${keyObj.key} (Valid for: ${keyObj.duration}) [Timing Reset]`;
-                    };
+            const resetButton = document.createElement("button");
+            resetButton.textContent = "Reset Timing";
+            resetButton.onclick = function () {
+                alert(`${keyObj.name}'s key timing has been reset.`);
+                keyInfo.textContent = `Generated Key: ${keyObj.key} (Valid for: ${keyObj.duration}) [Timing Reset]`;
+            };
 
-                    actionButtons.appendChild(deleteButton);
-                    actionButtons.appendChild(logoutButton);
-                    actionButtons.appendChild(resetButton);
-
-                    keyBox.appendChild(nameLabel);
-                    keyBox.appendChild(keyInfo);
-                    keyBox.appendChild(actionButtons);
-
-                    keysList.appendChild(keyBox);
+            // New "Copy Key" button
+            const copyButton = document.createElement("button");
+            copyButton.textContent = "Copy Key";
+            copyButton.onclick = function () {
+                navigator.clipboard.writeText(keyObj.key).then(() => {
+                    alert("Key copied to clipboard!");
+                }).catch(err => {
+                    console.error('Failed to copy key: ', err);
                 });
-            } else {
-                savedKeysDiv.style.display = "none";
-            }
-        }
+            };
+
+            actionButtons.appendChild(deleteButton);
+            actionButtons.appendChild(logoutButton);
+            actionButtons.appendChild(resetButton);
+            actionButtons.appendChild(copyButton); // Add the copy button to the action buttons
+
+            keyBox.appendChild(nameLabel);
+            keyBox.appendChild(keyInfo);
+            keyBox.appendChild(actionButtons);
+
+            keysList.appendChild(keyBox);
+        });
+    } else {
+        savedKeysDiv.style.display = "none";
+    }
+}
 
         function generateKey() {
             const personName = document.getElementById("startName").value.trim();
