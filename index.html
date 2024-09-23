@@ -150,18 +150,23 @@
     </footer>
 
     <script>
+        // Import Firebase App and Database from SDK
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
+        import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js";
+
         // Firebase configuration and initialization
         const firebaseConfig = {
-            apiKey: "YOUR_API_KEY",
-            authDomain: "YOUR_AUTH_DOMAIN",
-            databaseURL: "YOUR_DATABASE_URL",
-            projectId: "YOUR_PROJECT_ID",
-            storageBucket: "YOUR_STORAGE_BUCKET",
-            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-            appId: "YOUR_APP_ID"
+          apiKey: "AIzaSyBk_A4Nz5Bz9fsFpd2rX56b1Fv4GlY7wCM",
+          authDomain: "auto-key-genrate.firebaseapp.com",
+          projectId: "auto-key-genrate",
+          storageBucket: "auto-key-genrate.appspot.com",
+          messagingSenderId: "656423303107",
+          appId: "1:656423303107:web:ee39c20bc6d54b9bcaef76",
+          measurementId: "G-PE3YE8PPL2",
         };
-        firebase.initializeApp(firebaseConfig);
-        const database = firebase.database();
+
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
 
         let savedKeys = [];
 
@@ -226,45 +231,56 @@
 
         // Function to generate a key
         function generateKey() {
-            const personName = document.getElementById("startName").value.trim();
-            if (personName === "") {
-                alert("Please enter the person's name.");
-                return;
-            }
+    const personName = document.getElementById("startName").value.trim();
+    if (personName === "") {
+        alert("Please enter the person's name.");
+        return;
+    }
 
-            const prefix = "AK";
-            const keyLength = 20;
-            const remainingLength = keyLength - prefix.length;
+    const prefix = "AK";
+    const keyLength = 20;
+    const remainingLength = keyLength - prefix.length;
 
-            let randomPart = "";
-            const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-            for (let i = 0; i < remainingLength; i++) {
-                randomPart += characters.charAt(Math.floor(Math.random() * characters.length));
-            }
+    let randomPart = "";
+    const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    for (let i = 0; i < remainingLength; i++) {
+        randomPart += characters.charAt(Math.floor(Math.random() * characters.length));
+    }
 
-            const generatedKey = prefix + randomPart;
-            const timeDuration = document.getElementById("timeDuration").value;
+    const generatedKey = prefix + randomPart;
+    const timeDuration = document.getElementById("timeDuration").value;
 
-            const keyObject = {
-                name: personName,
-                key: generatedKey,
-                duration: timeDuration,
-            };
+    const keyObject = {
+        name: personName,
+        key: generatedKey,
+        duration: timeDuration,
+    };
 
-            // Save the key to Firebase
-            firebase.database().ref('keys/' + generatedKey).set(keyObject)
-                .then(() => {
-                    console.log('Key saved to Firebase:', keyObject);
-                    savedKeys.push(keyObject);
-                    saveKeysToLocalStorage();
-                    displaySavedKeys();
-                    alert('Key successfully saved to Firebase.');
-                })
-                .catch(error => {
-                    console.error('Failed to save key to Firebase:', error);
-                    alert('Error saving key to Firebase');
-                });
+    // Send the key data to the backend server
+    fetch('http://localhost:3000/save-key', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(keyObject),
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.message === 'Key successfully saved!') {
+            console.log('Key saved:', keyObject);
+            savedKeys.push(keyObject);
+            saveKeysToLocalStorage();
+            displaySavedKeys();
+            alert('Key successfully saved to server.');
+        } else {
+            alert('Failed to save key to server.');
         }
+    })
+    .catch((error) => {
+        console.error('Error saving key:', error);
+        alert('Error saving key to server');
+    });
+}
     </script>
 </body>
 </html>
