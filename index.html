@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Secure Login System</title>
     <style>
-        /* Your styles remain unchanged */
+        /* Styles for the page */
         body {
             font-family: Arial, sans-serif;
             background-color: #f4f4f4;
@@ -114,14 +114,7 @@
         <a href="#">Contact</a>
     </nav>
     
-    <div class="container" id="loginContainer">
-        <h2>Login</h2>
-        <label for="passwordInput">Enter Password:</label>
-        <input type="password" id="passwordInput" class="password-input" placeholder="Enter password..." />
-        <button class="generate-button" onclick="login()">Login</button>
-    </div>
-
-    <div class="container" id="mainContainer" style="display:none;">
+    <div class="container" id="mainContainer">
         <h2>Key Generation Panel</h2>
         
         <label for="startName">Enter Person's Name:</label>
@@ -157,7 +150,7 @@
     </footer>
 
     <script>
-        // Initialize Firebase
+        // Firebase configuration and initialization
         const firebaseConfig = {
             apiKey: "YOUR_API_KEY",
             authDomain: "YOUR_AUTH_DOMAIN",
@@ -167,45 +160,22 @@
             messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
             appId: "YOUR_APP_ID"
         };
-        const app = firebase.initializeApp(firebaseConfig);
+        firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
 
-        const correctPassword = "Apple";
         let savedKeys = [];
 
-        function login() {
-            const enteredPassword = document.getElementById("passwordInput").value;
-            if (enteredPassword === correctPassword) {
-                alert("Password correct! You are now logged in.");
-                localStorage.setItem('savedPassword', enteredPassword);
-                showMainContainer();
-            } else {
-                alert("Incorrect password. Please try again.");
-            }
-        }
-
-        function showMainContainer() {
-            document.getElementById("loginContainer").style.display = "none";
-            document.getElementById("mainContainer").style.display = "block";
-        }
-
-        function checkSavedPassword() {
-            const savedPassword = localStorage.getItem('savedPassword');
-            if (savedPassword === correctPassword) {
-                showMainContainer();
-                loadSavedKeys();
-            }
-        }
-
         function initializeApp() {
-            checkSavedPassword();
+            // Load saved keys from localStorage
             loadSavedKeys();
         }
 
+        // Function to save keys to localStorage
         function saveKeysToLocalStorage() {
             localStorage.setItem('savedKeys', JSON.stringify(savedKeys));
         }
 
+        // Load saved keys from localStorage
         function loadSavedKeys() {
             const keysData = localStorage.getItem('savedKeys');
             if (keysData) {
@@ -214,10 +184,12 @@
             }
         }
 
+        // Function to display saved keys
         function displaySavedKeys() {
             const savedKeysDiv = document.getElementById("savedKeys");
             const keysList = document.getElementById("keysList");
             keysList.innerHTML = '';
+
             if (savedKeys.length > 0) {
                 savedKeysDiv.style.display = "block";
                 savedKeys.forEach(keyObj => {
@@ -252,6 +224,7 @@
             }
         }
 
+        // Function to generate a key
         function generateKey() {
             const personName = document.getElementById("startName").value.trim();
             if (personName === "") {
@@ -278,7 +251,7 @@
                 duration: timeDuration,
             };
 
-            // Save the key to Firebase first
+            // Save the key to Firebase
             firebase.database().ref('keys/' + generatedKey).set(keyObject)
                 .then(() => {
                     console.log('Key saved to Firebase:', keyObject);
